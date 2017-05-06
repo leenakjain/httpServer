@@ -16,6 +16,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+/*
+ * This Program creates a simple web server
+ * It receives a get request for a path and displays the content of that path
+ * IF path is a directory, it displays the content of direcorty
+ * If path is a file name, it displays the content of the file 
+ *
+ * @Author   Leena Jain
+ * @version  1.0 
+ * 
+ */
 public class HttpServer {
 
 	private static final Logger logger = Logger.getLogger(HttpServer.class.getName());
@@ -37,11 +47,9 @@ public class HttpServer {
 
 		HttpServer.init();
 		logger.log(Level.INFO, "log initialized");
-		
+
 		ServerSocket server = new ServerSocket(9900);
-		//System.out.println("Listening for connection on port 9900 ....");
 		logger.log(Level.INFO, "Listening for connection on port 9900 ....");
-		
 
 		while (true) {
 			Socket clientSocket = server.accept();
@@ -66,42 +74,66 @@ public class HttpServer {
 			String status = protocol + " 200 OK\r\n";
 
 			byte[] fileContent;
-
+			// check if the path provided by user exists
 			if (!file.exists()) {
 				status = protocol + " 404 Not Found\r\n";
 				file = new File("./404.html");
-				System.out.println(" file not found");
+				logger.log(Level.SEVERE, "file not found");
+				System.out.println(file.toPath());
 				fileContent = Files.readAllBytes(file.toPath());
 			} else {
+				// if the path is a directory then display the directory
+				// contents
 				if (file.isDirectory()) {
-					// List<String> results = new ArrayList<String>();
-					StringBuffer results = new StringBuffer("");
-					results.append("<table>").append("<tr><td>File Name</td><td>Last Modified</td><td>Size</td></a>");
-					File[] files = file.listFiles();
-					for (File subfile : files) {
-						// if (subfile.isFile()) {
-						results.append("<tr><td><a href=").append(subfile.getPath()).append(">")
-								.append(subfile.getName()).append("</a></td>").append("<td>")
-								.append(LocalDateTime.ofInstant(Instant.ofEpochMilli(subfile.lastModified()),
-										ZoneId.systemDefault()))
-								.append("</td><td>").append(subfile.length()).append("</td>");
-					}
-					results.append("</table>");
-					fileContent = results.toString().getBytes();
-				} else {
 
+					fileContent = directoryContent(file);
+					logger.log(Level.INFO, "DIR  found" + file.toPath());
+
+				} else
+
+				{
+					// else if the path is a file , then display the file
+					// content
 					fileContent = Files.readAllBytes(file.toPath());
+					logger.log(Level.INFO, "file  found" + file.toPath());
 				}
 			}
 			// Pass the output to the client browser
 			displayContent(clientSocket, status, fileContent);
-
 		}
 	}
 
+	/*
+	 * This returns the content of the directory in a byte array.
+	 */
+	private static byte[] directoryContent(File file) {
+		
+		StringBuffer results = new StringBuffer("");
+		
+		//create a table to format the contents
+		results.append("<table>").append("<tr><td>File Name</td><td>Last Modified</td><td>Size</td></a>");
+		
+		File[] files = file.listFiles();
+		
+		for (File subfile : files) {
+			results.append("<tr><td><a href=").append(subfile.getPath()).append(">").append(subfile.getName())
+					.append("</a></td>").append("<td>").append(LocalDateTime
+							.ofInstant(Instant.ofEpochMilli(subfile.lastModified()), ZoneId.systemDefault()))
+					.append("</td><td>").append(subfile.length()).append("</td>");
+		}
+		
+		results.append("</table>");
+
+		byte[] contents = results.toString().getBytes();
+
+		return contents;
+	}
+
+	/*
+	 * This is responsible to create the response for the user
+	 */
 	private static void displayContent(Socket clientSocket, String status, byte[] fileContent) throws IOException {
 		LocalDateTime localDateTime = LocalDateTime.now();
-
 		// Standard HTTP response header
 		String header = status + "Location: http://localhost:9900/\r\n" + "Date: " + localDateTime + "\r\n"
 				+ "Server: MeuServidor/1.0\r\n" + "Content-Type: text/html\r\n" + "Content-Length: "

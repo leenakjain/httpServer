@@ -1,0 +1,12 @@
+May 07, 2017 12:37:23 AM org.lnk.httpServer.HttpServer main
+INFO: log initialized
+May 07, 2017 12:37:23 AM org.lnk.httpServer.HttpServer main
+INFO: Listening for connection on port 9900 ....
+May 07, 2017 12:37:37 AM org.lnk.httpServer.HttpServer main
+INFO: DIR  found.
+May 07, 2017 12:37:40 AM org.lnk.httpServer.HttpServer main
+INFO: DIR  found.\org
+May 07, 2017 12:37:55 AM org.lnk.httpServer.HttpServer main
+INFO: DIR  found.\org\lnk
+May 07, 2017 12:38:16 AM org.lnk.httpServer.HttpServer main
+SEVERE: file not found
